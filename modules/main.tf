@@ -17,7 +17,7 @@ resource "aws_instance" "main" {
     }
 
   tags = {
-    Name = "var.name"
+    Name = var.name
   }
 
    # We will soon remove this option and this is a workAround
