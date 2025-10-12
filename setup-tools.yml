@@ -4,4 +4,4 @@
   hosts: all               # so ansible playbook will run on all hosts mentioned in inventory file
   become: yes
   roles:
-    - "{{ tool_name }}"
+    - role: "{{ tool_name }}"   # tool_name is passed as environment variable from gocd pipeline
