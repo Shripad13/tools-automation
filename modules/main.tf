@@ -5,7 +5,7 @@
 
 resource "aws_instance" "main" {
   ami           = data.aws_ami.main.image_id 
-  instance_type = var.instance.type
+  instance_type = var.instance_type
   vpc_security_group_ids = [aws_security_group.main.id]
 
     instance_market_options {
