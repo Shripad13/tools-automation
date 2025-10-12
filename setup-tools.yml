@@ -1,0 +1,7 @@
+## This is to call Ansible roles to install tools like prometheus, vault, docker etc.,
+
+- name: Setup Tools Playbook
+  hosts: all               # so ansible playbook will run on all hosts mentioned in inventory file
+  become: yes
+  roles:
+    - "{{ tool_name }}"
