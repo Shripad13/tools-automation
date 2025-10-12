@@ -1,6 +1,6 @@
 module "tools" {
-    #for_each = var.tools
-    source = "./module"
+    for_each = var.tools
+    source = "./modules"
 
     name = var.tools["vault"]["name"]
     instance_type = var.tools["vault"]["instance_type"]
