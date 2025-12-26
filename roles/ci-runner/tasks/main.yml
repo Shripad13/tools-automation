@@ -1,0 +1,36 @@
+- name: Configuring hostname
+  ansible.builtin.shell: set-hostname ci_runner
+
+- name: Creating the directory
+  ansible.builtin.file:
+   path: /actions-runner
+   state: directory
+   owner: "{{defuser}}"
+   group: "{{defuser}}"
+
+- name: Downloading & Extracting GitHub Actions Runner package
+  ansible.builtin.unarchive:
+   src: "{{url}}"
+   dest: /actions-runner
+   remote_src: yes  
+   owner: "{{defuser}}"
+   group: "{{defuser}}"
+
+- name: Installing Pre-required dependencies
+  ansible.builtin.dnf:
+    name: libicu
+    state: present
+  become_user: root
+
+- name: Configuring Runner
+  ansible.builtin.shell: ./config.sh --url https://github.com/Shripad13/github-actions --token "{{GITHUB_TOKEN}}" --unattended --replace --name ci-runner
+  become_user: "{{defuser}}"
+  args:
+    chdir: /actions-runner
+
+- name: Installing & Starting Service
+  ansible.builtin.shell: /actions-runner/svc.sh install ; /actions-runner/svc.sh start
+  become_user: "{{defuser}}"
+  args:
+    chdir: /actions-runner
+
