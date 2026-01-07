@@ -1,3 +1,4 @@
-url: "https://github.com/actions/runner/releases/download/v2.330.0/actions-runner-linux-x64-2.330.0.tar.gz"
+GA_Runner_url: "https://github.com/actions/runner/releases/download/v2.330.0/actions-runner-linux-x64-2.330.0.tar.gz"
 defuser: "ec2-user"
-GITHUB_TOKEN: "AZZJEVAMXGXVQSNWNW2NNXLJJZ5OA"
+#GITHUB_TOKEN: "AZZJEVAMXGXVQSNWNW2NNXLJJZ5OA" --- THis is not required bcoz we are fetching Runner token dynamically.
+sonarscanner_url: "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip"

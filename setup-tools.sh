@@ -11,3 +11,4 @@ ansible-playbook -i ${2}.devsecopswithshri.site, -e ansible_user=ec2-user -e ans
 
 
 # Command to run the script: bash setup-tools.sh DevOps321 ci-runner
+# Command to run the script: bash setup-tools.sh DevOps321 sonar

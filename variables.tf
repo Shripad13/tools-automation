@@ -12,6 +12,14 @@ variable "tools" {
             name = "ci-runner"
             instance_type = "t3.micro"
             #port_no = 8200
-        }        
+        }  
+        sonarqube = {
+            name = "sonarqube"
+            instance_type = "r7a.large"
+            port_no ={
+                sonarqube = 9000
+                ssh      = 22
+            }
+        }               
     }
 }

@@ -1,0 +1,7 @@
+url: "https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-25.12.0.117093.zip"
+# Get the above uRL from sonarqube websites for downloading sonarqube package
+sonaruser: "sonar"
+GITHUB_TOKEN: "AZZJEVAMXGXVQSNWNW2NNXLJJZ5OA"
+
+
+# Default credentials for any open source tool is admin,admin

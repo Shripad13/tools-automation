@@ -3,6 +3,7 @@
 - name: Configuring hostname
   ansible.builtin.shell: set-hostname ci_runner
 
+
 - name: Creating the directory
   ansible.builtin.file:
    path: /actions-runner
@@ -12,7 +13,7 @@
 
 - name: Downloading & Extracting GitHub Actions Runner package
   ansible.builtin.unarchive:
-   src: "{{url}}"
+   src: "{{GA_Runner_url}}"
    dest: /actions-runner
    remote_src: yes  
    owner: "{{defuser}}"
@@ -24,15 +25,80 @@
     state: present
   become_user: root
 
+- name: Installing Pre-required dependencies Java 17
+  ansible.builtin.dnf:
+    name: java-17-openjdk
+    state: installed
+  become_user: root
+
+- name: Installing Docker 
+  ansible.builtin.dnf:
+    name: docker
+    state: installed
+  become_user: root
+
+- name: Creating the directory for sonar scanner
+  ansible.builtin.file:
+   path: /sonar-scanner
+   state: directory
+   owner: "{{defuser}}"
+   group: "{{defuser}}"
+
+- name: Downloading & Extracting sonar scanner package
+  ansible.builtin.unarchive:
+   src: "{{sonarscanner_url}}"
+   dest: /sonar-scanner
+   remote_src: yes  
+   owner: "{{defuser}}"
+   group: "{{defuser}}"  
+
+
+# We dont want the token to be copy pasted from Github Actions from UI all the time to code.
+# I want this to be fetched all the time dynamically from github secrets.
+# Github offers, "gh cli" using from the ci-runner connect eith github, get the token & run.
+# ci-runner has to connect to github & get the token automatically.
+
+- name: Fetching token
+  ansible.builtin.shell: |
+    gh api --method POST -H "Accept: application/vnd.github+json" /repos/Shripad13/expense-backend/actions/runners/registration-token |jq .token |xargs
+  register: GITHUB_TOKEN
+
+- name: Removing Runner
+  ansible.builtin.shell: sudo ./svc.sh stop; sudo ./svc.sh uninstall; /actions-runner/config.sh remove --url https://github.com/Shripad13/github-actions --token "{{GITHUB_TOKEN.stdout}}" --unattended
+  become_user: "{{defuser}}"
+  args:
+    chdir: /actions-runner
+  ignore_errors: yes
+
 - name: Configuring Runner
-  ansible.builtin.shell: ./config.sh --url https://github.com/Shripad13/github-actions --token "{{GITHUB_TOKEN}}" --unattended --replace --name ci-runner
+  ansible.builtin.shell: /actions-runner/config.sh --url https://github.com/Shripad13/github-actions --token "{{GITHUB_TOKEN.stdout}}" --unattended --replace --name ci-runner
   become_user: "{{defuser}}"
   args:
     chdir: /actions-runner
+  ignore_errors: yes
 
-- name: Installing & Starting Service
-  ansible.builtin.shell: sudo ./svc.sh install ; sudo ./svc.sh start
-  become_user: "{{defuser}}"
+- name: Installing  Service
+  ansible.builtin.shell: sudo ./svc.sh install 
   args:
     chdir: /actions-runner
 
+- name: Starting Service
+  ansible.builtin.shell: sudo ./svc.sh start
+  args:
+    chdir: /actions-runner
+
+- name: Copying the repo
+  ansible.builtin.template:
+    src: kubectl.repo
+    dest: /etc/yum.repos.d/kubernetes.repo
+
+- name: Installing kubectl
+  ansible.builtin.dnf:
+    name: kubectl
+    state: installed    
+
+- name: Installing Argocd CLI
+  ansible.builtin.shell: |  
+    curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+    sudo installl -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+    rm argocd-linux-amd64    

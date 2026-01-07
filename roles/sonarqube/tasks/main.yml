@@ -1,0 +1,50 @@
+# Command to run the script: bash setup-tools.sh <ansible_password> <tool_name>
+
+- name: Configuring hostname
+  ansible.builtin.shell: set-hostname sonarqube
+
+- name: Installing Pre-required dependencies Java 17
+  ansible.builtin.dnf:
+    name: java-17-openjdk
+    state: installed
+  become_user: root
+
+- name: Creating the Sonar User
+  ansible.builtin.user:
+    name: "{{sonaruser}}"
+    comment: "SonarQube User"
+
+
+- name: Creating the sonar directory
+  ansible.builtin.file:
+   path: /sonar
+   state: directory
+   owner: "{{sonaruser}}"
+   group: "{{sonaruser}}"
+
+- name: Downloading & Extracting GitHub Actions Runner package
+  ansible.builtin.unarchive:
+   src: "{{url}}"
+   dest: /sonar
+   remote_src: yes  
+   owner: "{{sonaruser}}"
+   group: "{{sonaruser}}"
+
+
+
+- name: COpying Sonar systemd file
+  ansible.builtin.template: 
+    src: sonarqube.service
+    dest: /etc/systemd/system/sonarqube.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Starting Sonarqube Service
+  ansible.builtin.systemd_service:
+    name: sonarqube
+    state: restarted
+    enabled: true
+    daemon_reload: yes
+
+
